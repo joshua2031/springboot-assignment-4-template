@@ -51,4 +51,18 @@ class JwtTokenProvider(
         }
         return false
     }
+
+    // 남은 유효 시간 계산 (로그아웃 시 Redis TTL 설정을 위해)
+    fun getRemainingExpiration(token: String): Long {
+        val expiration =
+            Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .body
+                .expiration
+        val now = Date()
+        return expiration.time - now.time
+    }
 }

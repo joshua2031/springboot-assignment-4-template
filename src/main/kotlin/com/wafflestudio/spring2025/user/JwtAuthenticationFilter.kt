@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.user
 
+import com.wafflestudio.spring2025.common.service.RedisService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -10,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
+    private val redisService: RedisService,
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
@@ -26,6 +28,12 @@ class JwtAuthenticationFilter(
         val token = resolveToken(request)
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
+            if (redisService.isBlacklisted(token)) {
+                // 블랙리스트에 등록된 토큰이면 401 에러
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Logged out token")
+                return
+            }
+
             val username = jwtTokenProvider.getUsername(token)
             request.setAttribute("username", username)
         } else {
@@ -46,6 +54,7 @@ class JwtAuthenticationFilter(
 
     private fun isPublicPath(path: String): Boolean =
         pathMatcher.match("/api/v1/auth/**", path) ||
+            pathMatcher.match("/api/v1/auth/register", path) ||
             pathMatcher.match("/swagger-ui/**", path) ||
             pathMatcher.match("/v3/api-docs/**", path)
 }

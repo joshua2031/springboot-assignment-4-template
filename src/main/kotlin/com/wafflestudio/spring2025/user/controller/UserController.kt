@@ -35,12 +35,18 @@ class UserController(
         @Parameter(hidden = true) @LoggedInUser user: User,
     ): ResponseEntity<GetMeResponse> = ResponseEntity.ok(UserDto(user))
 
+    @Operation(summary = "로그아웃", description = "토큰을 파라미터로 받아 로그아웃 처리합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+        ],
+    )
     @PostMapping("/logout")
     fun logout(
         @Parameter(hidden = true) @LoggedInUser user: User,
         @RequestParam token: String,
     ): ResponseEntity<Unit> {
-        userService.logout(user, token)
+        userService.logout(token)
         return ResponseEntity.ok().build()
     }
 }

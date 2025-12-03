@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seminar-app
+  labels:
+    app: seminar-app
+spec:
+  replicas: 2 # Pod이 여러 개인 환경 (요구사항 충족)
+  selector:
+    matchLabels:
+      app: seminar-app
+  template:
+    metadata:
+      labels:
+        app: seminar-app
+    spec:
+      containers:
+        - name: seminar-app
+          # 아래 이미지는 본인의 ghcr.io 주소로 변경 필요 (예: ghcr.io/username/repo:latest)
+          image: ghcr.io/tapha-k/springboot-assignment-4-template:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            # DB 설정 (설치할 때의 설정 값으로 맞춰야 함)
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/seminar2025?useSSL=false&allowPublicKeyRetrieval=true
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: password1234
+            # Redis 설정 (Helm으로 설치하면 서비스명이 redis-master)
+            - name: SPRING_DATA_REDIS_HOST
+              value: redis-master
+            - name: SPRING_DATA_REDIS_PORT
+              value: "6379"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seminar-app-service
+spec:
+  type: LoadBalancer # 또는 NodePort
+  selector:
+    app: seminar-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.user.controller
 
+import com.wafflestudio.spring2025.user.JwtTokenProvider
 import com.wafflestudio.spring2025.user.dto.LoginRequest
 import com.wafflestudio.spring2025.user.dto.LoginResponse
 import com.wafflestudio.spring2025.user.dto.RegisterRequest
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Auth", description = "인증 API")
 class AuthController(
     private val userService: UserService,
+    private val jwtTokenProvider: JwtTokenProvider,
 ) {
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
     @ApiResponses(

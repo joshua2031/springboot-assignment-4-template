@@ -1,5 +1,6 @@
 package com.wafflestudio.spring2025.user.service
 
+import com.wafflestudio.spring2025.common.service.RedisService
 import com.wafflestudio.spring2025.user.AuthenticateException
 import com.wafflestudio.spring2025.user.JwtTokenProvider
 import com.wafflestudio.spring2025.user.SignUpBadPasswordException
@@ -9,14 +10,14 @@ import com.wafflestudio.spring2025.user.dto.core.UserDto
 import com.wafflestudio.spring2025.user.model.User
 import com.wafflestudio.spring2025.user.repository.UserRepository
 import org.mindrot.jbcrypt.BCrypt
-import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
+import java.time.Duration
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val redisTemplate: StringRedisTemplate,
+    private val redisService: RedisService,
 ) {
     fun register(
         username: String,
@@ -56,10 +57,12 @@ class UserService(
         return accessToken
     }
 
-    fun logout(
-        user: User,
-        token: String,
-    ) {
-        TODO()
+    fun logout(token: String) {
+        if (jwtTokenProvider.validateToken(token)) {
+            val remainingTime = jwtTokenProvider.getRemainingExpiration(token)
+            if (remainingTime > 0) {
+                redisService.setValues(token, "logout", Duration.ofMillis(remainingTime))
+            }
+        }
     }
 }
