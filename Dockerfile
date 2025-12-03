@@ -1,5 +1,5 @@
 # 1. 베이스 이미지 선택 (경량화된 Java 17 이미지)
-FROM docker.io/eclipse-temurin:17-alpine
+FROM docker.io/eclipse-temurin:17
 # 2. 작업 디렉토리 설정 (컨테이너 내부의 /app 디렉토리)
 WORKDIR /app
 # 3. 현재 디렉토리를 내부의 /app 디렉토리로 복사
