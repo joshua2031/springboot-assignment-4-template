@@ -17,7 +17,7 @@ spec:
       containers:
         - name: seminar-app
           # 아래 이미지는 본인의 ghcr.io 주소로 변경 필요 (예: ghcr.io/username/repo:latest)
-          image: ghcr.io/tapha-k/springboot-assignment-4-template:latest
+          image: ghcr.io/joshua2031/springboot-assignment-4-template:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
